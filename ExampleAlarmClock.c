@@ -19,7 +19,6 @@
 #include "si4734.h"
 */
 
-
 #define TRUE 1 
 #define FALSE 0 
 
@@ -57,6 +56,7 @@ enum EButtonIndices
     EButtonIndices_Size
 };
 
+
 // global volatiles -- used by interrupts routines, so compiler must not optimize these away
 volatile uint8_t alarm_flag = 0; //flag set when alarm is going off
 volatile uint8_t snooze_flag = 0; //flag set when alarm is snoozed
@@ -64,22 +64,23 @@ volatile uint8_t clock_seconds = 0; //seconds for time of day
 
 
 // function that calculates a resulting byte after clearing the given bit of a given byte
-uint8_t clear_bit(uint8_t in_byte, uint8_t byte_index)
+uint8_t clear_bit(uint8_t in_byte, uint8_t bit_index)
 {
-	return in_byte & ~(1 << byte_index);
+	return in_byte & ~(1 << bit_index);
 }
 
+
 // function that calculates a resulting byte after setting the given bit of a given byte
-uint8_t set_bit(uint8_t in_byte, uint8_t byte_index)
+uint8_t set_bit(uint8_t in_byte, uint8_t bit_index)
 {
-	return in_byte | (1 << byte_index);
+	return in_byte | (1 << bit_index);
 }
 
 
 // function that calculates a resulting byte after toggling the given bit of a given byte
-uint8_t toggle_bit(uint8_t in_byte, uint8_t byte_index)
+uint8_t toggle_bit(uint8_t in_byte, uint8_t bit_index)
 {
-	return in_byte ^ (1 << byte_index);
+	return in_byte ^ (1 << bit_index);
 }
 
 
@@ -170,10 +171,43 @@ void generate_body_static_toggle_bit()
 }
 
 
-// static version of clear_bit which simply fetches the answer from a static lookup table
-uint8_t static_clear_bit(uint8_t in_byte, uint8_t byte_index)
+// function used to verify that the static bit manipulation functions have been implemented properly
+void test_static_bit_functions()
 {
-    if(byte_index > 7) return 0;
+    
+    printf("\ntesting...");
+    
+    for(int test_byte = 0b00000000; test_byte <= 0b11111111; test_byte++)
+    {
+        for(int test_bit_index = 0; test_byte < 7; test_byte++)
+        {
+            if(clear_bit(test_byte, test_bit_index) != static_clear_bit(test_byte, test_bit_index))
+            {
+                printf("\nerror: clear_bit, test_byte: '%d', test_bit_index: '%d'", test_byte, test_bit_index);
+            }
+            
+            if(set_bit(test_byte, test_bit_index) != static_set_bit(test_byte, test_bit_index))
+            {
+                printf("\nerror: set_bit, test_byte: '%d', test_bit_index: '%d'", test_byte, test_bit_index);
+            }
+            
+            if(toggle_bit(test_byte, test_bit_index) != static_toggle_bit(test_byte, test_bit_index))
+            {
+                printf("\nerror: toggle_bit, test_byte: '%d', test_bit_index: '%d'", test_byte, test_bit_index);
+            }
+        }
+    }
+    
+    printf("\ntesting done.");
+    
+    return;
+}
+
+
+// static version of clear_bit which simply fetches the answer from a static lookup table
+uint8_t static_clear_bit(uint8_t in_byte, uint8_t bit_index)
+{
+    if(bit_index > 7) return 0;
     
     static const int lookup_table[256][8] = {
         {0,0,0,0,0,0,0,0},
@@ -435,14 +469,14 @@ uint8_t static_clear_bit(uint8_t in_byte, uint8_t byte_index)
     };
     
     
-    return lookup_table[in_byte][byte_index];
+    return lookup_table[in_byte][bit_index];
 }
 
 
 // static version of set_bit which simply fetches the answer from a static table
-uint8_t static_set_bit(uint8_t in_byte, uint8_t byte_index)
+uint8_t static_set_bit(uint8_t in_byte, uint8_t bit_index)
 {
-    if(byte_index > 7) return 0;
+    if(bit_index > 7) return 0;
     
     static const int lookup_table[256][8] = {
         {1,2,4,8,16,32,64,128},
@@ -703,14 +737,14 @@ uint8_t static_set_bit(uint8_t in_byte, uint8_t byte_index)
     };
     
     
-    return lookup_table[in_byte][byte_index];
+    return lookup_table[in_byte][bit_index];
 }
 
 
 // static version of toggle_bit which simply fetches the answer from a static table
-uint8_t static_toggle_bit(uint8_t in_byte, uint8_t byte_index)
+uint8_t static_toggle_bit(uint8_t in_byte, uint8_t bit_index)
 {
-    if(byte_index > 7) return 0;
+    if(bit_index > 7) return 0;
     
     static const int lookup_table[256][8] = {
         {1,2,4,8,16,32,64,128},
@@ -971,38 +1005,5 @@ uint8_t static_toggle_bit(uint8_t in_byte, uint8_t byte_index)
     };
     
     
-    return lookup_table[in_byte][byte_index];
-}
-
-
-// function used to verify that the static bitwise functions have been implemented properly
-void test_static_bit_functions()
-{
-    
-    printf("\ntesting...");
-    
-    for(int test_byte = 0b00000000; test_byte <= 0b11111111; test_byte++)
-    {
-        for(int test_byte_index = 0; test_byte < 7; test_byte++)
-        {
-            if(clear_bit(test_byte, test_byte_index) != static_clear_bit(test_byte, test_byte_index))
-            {
-                printf("\nerror: clear_bit, test_byte: '%d', test_byte_index: '%d'", test_byte, test_byte_index);
-            }
-            
-            if(set_bit(test_byte, test_byte_index) != static_set_bit(test_byte, test_byte_index))
-            {
-                printf("\nerror: clear_bit, test_byte: '%d', test_byte_index: '%d'", test_byte, test_byte_index);
-            }
-            
-            if(toggle_bit(test_byte, test_byte_index) != static_toggle_bit(test_byte, test_byte_index))
-            {
-                printf("\nerror: clear_bit, test_byte: '%d', test_byte_index: '%d'", test_byte, test_byte_index);
-            }
-        }
-    }
-    
-    printf("\ntesting done.");
-    
-    return;
+    return lookup_table[in_byte][bit_index];
 }
