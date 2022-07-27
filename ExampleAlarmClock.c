@@ -85,6 +85,7 @@ uint8_t toggle_bit(uint8_t in_byte, uint8_t bit_index)
 
 
 // function used to generate the body of the static lookup table for the static version of clear_bit
+// creating and using the static functions will sacrifice memory for processor time
 void generate_body_static_clear_bit()
 {
     printf("\nstatic const int lookup_table[256][8] = {");
@@ -114,6 +115,7 @@ void generate_body_static_clear_bit()
 
 
 // function used to generate the body of the static lookup table for the static version of set_bit
+// creating and using the static functions will sacrifice memory for processor time
 void generate_body_static_set_bit()
 {
     printf("\nstatic const int lookup_table[256][8] = {");
@@ -143,6 +145,7 @@ void generate_body_static_set_bit()
 
 
 // function used to generate the body of the static lookup table for the static version of set_bit
+// creating and using the static functions will sacrifice memory for processor time
 void generate_body_static_toggle_bit()
 {
     printf("\nstatic const int lookup_table[256][8] = {");
@@ -205,6 +208,7 @@ void test_static_bit_functions()
 
 
 // static version of clear_bit which simply fetches the answer from a static lookup table
+// these functions sacrifice memory for processor time
 uint8_t static_clear_bit(uint8_t in_byte, uint8_t bit_index)
 {
     if(bit_index > 7) return 0;
@@ -474,6 +478,7 @@ uint8_t static_clear_bit(uint8_t in_byte, uint8_t bit_index)
 
 
 // static version of set_bit which simply fetches the answer from a static table
+// these functions sacrifice memory for processor time
 uint8_t static_set_bit(uint8_t in_byte, uint8_t bit_index)
 {
     if(bit_index > 7) return 0;
@@ -742,6 +747,7 @@ uint8_t static_set_bit(uint8_t in_byte, uint8_t bit_index)
 
 
 // static version of toggle_bit which simply fetches the answer from a static table
+// these functions sacrifice memory for processor time
 uint8_t static_toggle_bit(uint8_t in_byte, uint8_t bit_index)
 {
     if(bit_index > 7) return 0;
